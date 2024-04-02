@@ -1,1 +1,2 @@
 google-api-python-client==2.123.0
+python-gnupg==0.5.2

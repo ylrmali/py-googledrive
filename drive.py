@@ -19,6 +19,8 @@ import os
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
+from cryption import Cryption
+from dbmanager import DBManager
 
 BACKUP_FOLDER = os.environ.get('BACKUP_FOLDER','./backups/')
 CREDENTIALS_PATH = os.environ.get('CREDENTIALS_PATH', 'credentials.json')
@@ -28,6 +30,9 @@ class GCDrive:
     def __init__(self) -> None:
         self.__credentials = None  
         self.__service = None
+        self.cryption = Cryption()
+        self.dbmanager = DBManager()
+        self.execute_credentials()
     
     def set_credentials(self, cred_path: str):
         self.__credentials = Credentials.from_service_account_file(cred_path)
@@ -74,6 +79,42 @@ class GCDrive:
             .execute()
         return result
     
+    def get_by_name(self, 
+                file_name: str, 
+                shared_drive: bool=None
+        ) -> dict:
+        """
+        Get information about a file by its name
+        
+        Params:
+            file_name:      str     ->  name of the file you want to retrieve information for
+            shared_drive:   bool    ->  whether to include shared drives
+            
+        Return:
+            File: id, name, createdTime, mimeType, kind, owners, size
+        """
+        service = self.get_service()
+        
+        # Search for the file by name
+        query = f"name='{file_name}'"
+        # if shared_drive is not None:
+        #     query += f" and '{'true' if shared_drive else 'false'}' in parents"
+        
+        results = service.files().list(q=query,
+                                    supportsAllDrives=shared_drive,
+                                    fields='files(id, name, createdTime, mimeType, kind, owners, size)')\
+                                .execute()
+        
+        # Check if any files match the query
+        files = results.get('files', [])
+        if files:
+            # Return information for the first matching file
+            return files[0]
+        else:
+            # If no matching file is found, return None
+            return None
+
+    
     def list(self) -> list[dict]:
         """
         List all item on Google Drive service
@@ -91,9 +132,29 @@ class GCDrive:
         items = results.get("files", [])
         return items
     
+    def list_backup_files(self):
+        service = self.get_service()
+        db_name = 'default' # DBManager().__get_db_name()  # get database name from setting of django 
+        query = f"name contains '{db_name}_backup_'"
+        
+        response = service.files()\
+                                .list(q=query, 
+                                    fields="files(id, name, createdTime)")\
+                                .execute()
+        return response.get('files', [])
+    
+    def get_latest_backup(self):
+        backup_files = self.list_backup_files()
+        if backup_files:
+            latest_backup = max(backup_files, key=lambda x: x['createdTime'])
+            return latest_backup
+        else:
+            return None
+    
     def upload(self, 
                file: str, 
-               folder_id: str=None
+               folder_id: str=None,
+               encrypt: bool=True,
         ) -> dict:
         """Create new file
         
@@ -107,8 +168,13 @@ class GCDrive:
             json : proivde id of uploaded file and name of file
         """
         service = self.get_service()
+        if encrypt:
+            status, file_name = self.cryption.encrypt_file(file=file,
+                                       fingerprint='aali@gmail.com')
+            file = file_name if status else ...
+            
         media_body = MediaFileUpload(filename=file,
-                                     mimetype='application/octet-stream')
+                                    mimetype='application/octet-stream')
         body = {
             'name': file,
             'parents': [folder_id] if folder_id else None
@@ -180,7 +246,5 @@ class GCDrive:
             done = False
             while done is False:
                 status, done = downloader.next_chunk()
-            return done
-
-
-
+            return done, f"{BACKUP_FOLDER}{file_id}"
+        
