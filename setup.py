@@ -13,5 +13,10 @@ setup(
     install_requires=[
         "google-api-python-client==2.123.0"
     ],
-    url=''
+    entry_points={
+        'console_scripts': [
+            'pydrive = cli:main'
+        ]
+    },
+    url='https://github.com/ylrmali/py-googledrive.git'
 )
