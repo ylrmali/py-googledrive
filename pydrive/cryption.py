@@ -6,10 +6,10 @@ import os
 import gnupg
 import string
 import random
-from pydrive.drive import BACKUP_FOLDER
 from dotenv import load_dotenv
-
 load_dotenv()
+
+BACKUP_FOLDER = os.environ.get('BACKUP_FOLDER')
 
 class Cryption:
     def __init__(self):
