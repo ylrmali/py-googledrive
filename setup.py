@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.1.0'
+version = '0.4.0'
 
 setup(
     name='py-googledrive',
@@ -15,7 +15,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'pydrive = cli:main'
+            'gcapi = pydrive.cli:main'
         ]
     },
     url='https://github.com/ylrmali/py-googledrive.git'
