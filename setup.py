@@ -24,6 +24,9 @@ setup(
     packages=find_packages(),
     license='MIT',
     install_requires=read_requirements(),
+    extras_require={
+        'django': ['django=>4.2']
+    },
     entry_points={
         'console_scripts': [
             'gcapi = pydrive.cli:main'
