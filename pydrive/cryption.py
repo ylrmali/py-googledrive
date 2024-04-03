@@ -16,7 +16,7 @@ class Cryption:
 
     def get_gnupg_home(self):
         # Get GNUPG_HOME from environment variable or use default value
-        return os.environ.get('GNUPG_HOME', '/Users/aliyildirim/Project/gc_api/.keys')
+        return os.environ.get('GNUPG_HOME', '~/.gnupg')
 
     def generate_rsa_key(self, 
                      name_real: str, 
