@@ -21,14 +21,17 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from pydrive.cryption import Cryption
 from pydrive.dbmanager import DBManager
+from dotenv import load_dotenv
 
-BACKUP_FOLDER = os.environ.get('BACKUP_FOLDER','./backups/')
-CREDENTIALS_PATH = os.environ.get('CREDENTIALS_PATH', 'credentials.json')
-PAGE_LIST_SIZE = os.environ.get('PAGE_LIST_SIZE', 10)
+load_dotenv()
+
+BACKUP_FOLDER = os.environ.get('BACKUP_FOLDER')
+CREDENTIALS_PATH = os.environ.get('CREDENTIALS_PATH')
+PAGE_LIST_SIZE = os.environ.get('PAGE_LIST_SIZE', 100)
 
 class GCDrive:
     def __init__(self) -> None:
-        self.__credentials = None  
+        self.__credentials = None
         self.__service = None
         self.cryption = Cryption()
         self.dbmanager = DBManager()

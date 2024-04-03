@@ -13,25 +13,30 @@ import datetime
 
 class DBManager:
     def __init__(self) -> None:
-        if self.is_django_installed():
-            from django.core.management import call_command
-            from django.conf import settings
-            self._settings = settings
-            self._dbname = self.__get_db_name()
-            self._output_dir = self.__get_output_dir()
-    
+        self._dbname = None
+        self._output_dir = None
+        
+    def get_django_setting(self, setting_name, default=None):
+        """
+        Function to retrieve a Django setting by name.
+        If the setting doesn't exist, it returns the default value.
+        """
+        from django.conf import settings
+        return getattr(settings, setting_name, default)
+        
     def is_django_installed(self):
         try:
             import django
+            django.setup()
             return True
         except ImportError:
             return False
         
     def __get_db_name(self):
-        return self._settings.DATABASES['default']['NAME']
+        return self.get_django_setting('DATABASES')['default']['NAME']
     
     def __get_output_dir(self):
-        return self._settings.BACKUP_DIR
+        return self.get_django_setting('BACKUP_DIR')
         
         
     def backup_database(self, 
@@ -41,6 +46,11 @@ class DBManager:
         if not self.is_django_installed():
             print("Django is not installed.")
             return None
+        
+        if not self._dbname:
+            self._dbname = self.__get_db_name()
+        if not self._output_dir:
+            self._output_dir = self.__get_output_dir()
        
         # If database_name and output_dir are not provided, use default settings from Django settings.py
         database_name = database_name or self._dbname
@@ -57,7 +67,8 @@ class DBManager:
 
         try:
             # Call Django management command to perform the backup
-            call_command('dumpdata', '--output', backup_filepath, f'--format=json')
+            from django.core.management import call_command
+            call_command('dumpdata', f'--output={backup_filepath}')
             return True
         except Exception as e:
             print(f"Backup failed: {e}")
@@ -70,9 +81,9 @@ class DBManager:
         
         try:
             # Call Django management command to perform the backup
-            call_command('loaddata', '--format=json', backup_filepath)
+            from django.core.management import call_command
+            call_command('loaddata', backup_filepath)
             return True
         except Exception as e:
-            print(f"Backup failed: {e}")
+            print(f"Restore failed: {e}")
             return False
-        

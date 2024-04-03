@@ -7,7 +7,9 @@ import gnupg
 import string
 import random
 from pydrive.drive import BACKUP_FOLDER
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class Cryption:
     def __init__(self):
@@ -16,7 +18,7 @@ class Cryption:
 
     def get_gnupg_home(self):
         # Get GNUPG_HOME from environment variable or use default value
-        return os.environ.get('GNUPG_HOME', '~/.gnupg')
+        return os.environ.get('GNUPG_HOME')
 
     def generate_rsa_key(self, 
                      name_real: str, 
