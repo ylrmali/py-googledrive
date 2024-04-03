@@ -19,8 +19,8 @@ import os
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
-from cryption import Cryption
-from dbmanager import DBManager
+from pydrive.cryption import Cryption
+from pydrive.dbmanager import DBManager
 
 BACKUP_FOLDER = os.environ.get('BACKUP_FOLDER','./backups/')
 CREDENTIALS_PATH = os.environ.get('CREDENTIALS_PATH', 'credentials.json')

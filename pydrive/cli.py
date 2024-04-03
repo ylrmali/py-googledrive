@@ -1,7 +1,7 @@
 import click
-from cryption import Cryption
-from drive import GCDrive
-from dbmanager import DBManager
+from pydrive.cryption import Cryption
+from pydrive.drive import GCDrive
+from pydrive.dbmanager import DBManager
 
 
 __cls = GCDrive()

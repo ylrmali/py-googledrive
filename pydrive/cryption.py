@@ -6,7 +6,7 @@ import os
 import gnupg
 import string
 import random
-from gcapi import BACKUP_FOLDER
+from pydrive.drive import BACKUP_FOLDER
 
 
 class Cryption:
