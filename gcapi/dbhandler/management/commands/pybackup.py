@@ -53,8 +53,10 @@ class Command(BaseCommand):
             
             if is_encrypt:
                 status, encrypted_file = Cryption().encrypt_file(file=f"{backup_filepath}")
-                self.__success_output("<------ Dump file successfully encrypted ------>") if status \
-                else self.__error_output("<------ Dump file could not be encrypted ------>")
+                if not status:
+                    self.__error_output("<------ Dump file could not be encrypted ------>")
+                
+                os.remove(backup_filepath) # remove old file
                 backup_filepath = encrypted_file
             
             response = GCDrive().upload(file=backup_filepath)
@@ -62,7 +64,7 @@ class Command(BaseCommand):
             # Remove backup dump files 
             os.remove(backup_filepath)
             
-            self.__success_output(text=response)    
+            self.__success_output(text="<------ Backup file uploaded to Google drive -------->")    
 
         except Exception as e:
             self.__error_output(f"Backup failed: {e}")

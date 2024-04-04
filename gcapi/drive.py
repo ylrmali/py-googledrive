@@ -129,7 +129,7 @@ class GCDrive:
         results = service.files()\
             .list(pageSize=PAGE_LIST_SIZE, 
                 fields="nextPageToken, \
-                files(id, name, createdTime, mimeType, fullFileExtension)")\
+                files(id, name, createdTime, mimeType, fullFileExtension, trashed)")\
             .execute()
         items = results.get("files", [])
         return items
@@ -243,7 +243,8 @@ class GCDrive:
         return result        
 
     def download(self,
-               file_id: str
+               file_id: str,
+               file_name: str=None
         ):
         """
         Download specific file on your Google Drive as byte
@@ -256,7 +257,8 @@ class GCDrive:
         """
         service = self.get_service()
         request = service.files().get_media(fileId=file_id)
-        file = os.path.join(BACKUP_FOLDER, file_id)
+        name = file_name if file_name else file_id
+        file = os.path.join(BACKUP_FOLDER, name)
         with open(file, 'wb') as f:
             downloader = MediaIoBaseDownload(f, request)
             done = False
