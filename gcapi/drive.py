@@ -19,22 +19,21 @@ import os
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
-from pydrive.cryption import Cryption
-from pydrive.dbmanager import DBManager
+from gcapi.cryption import Cryption
 from dotenv import load_dotenv
 
 load_dotenv()
 
-BACKUP_FOLDER = os.environ.get('BACKUP_FOLDER')
-CREDENTIALS_PATH = os.environ.get('CREDENTIALS_PATH')
-PAGE_LIST_SIZE = os.environ.get('PAGE_LIST_SIZE', 100)
+BACKUP_FOLDER = os.environ.get('GCAPI_BACKUP_FOLDER')
+CREDENTIALS_PATH = os.environ.get('GCAPI_CREDENTIALS_PATH')
+PAGE_LIST_SIZE = os.environ.get('GCAPI_PAGE_SIZE', 100)
+FOLDER_ID = os.environ.get('GCAPI_FOLDER_ID', None)
 
 class GCDrive:
     def __init__(self) -> None:
         self.__credentials = None
         self.__service = None
         self.cryption = Cryption()
-        self.dbmanager = DBManager()
         self.execute_credentials()
     
     def set_credentials(self, cred_path: str):
@@ -135,10 +134,21 @@ class GCDrive:
         items = results.get("files", [])
         return items
     
-    def list_backup_files(self):
+    def list_backup_files(self, 
+                          db_name: str
+        ) -> list:
+        """List backup files of database
+        
+        List database's backups according to database name
+        
+        Params:
+            db_name: str -> Database name
+        
+        Return:
+            file list -> list
+        """
         service = self.get_service()
-        db_name = 'default' # DBManager().__get_db_name()  # get database name from setting of django 
-        query = f"name contains '{db_name}_backup_'"
+        query = f"name contains 'default_{db_name}_'"
         
         response = service.files()\
                                 .list(q=query, 
@@ -146,18 +156,25 @@ class GCDrive:
                                 .execute()
         return response.get('files', [])
     
-    def get_latest_backup(self):
-        backup_files = self.list_backup_files()
+    def get_latest_backup(self, 
+                          db_name:str
+        ) -> dict:
+        """
+        Get specific database latest backup file
+        
+        Params:
+            db_name: str -> Database name 
+            
+        Return:
+            file -> None | dictionary
+        """
+        backup_files = self.list_backup_files(db_name=db_name)
         if backup_files:
             latest_backup = max(backup_files, key=lambda x: x['createdTime'])
             return latest_backup
-        else:
-            return None
     
     def upload(self, 
-               file: str, 
-               folder_id: str=None,
-               encrypt: bool=True,
+               file: str,
         ) -> dict:
         """Create new file
         
@@ -165,22 +182,17 @@ class GCDrive:
         
         Params:
             file :       string -> path of file or file name
-            folder_id :  string -> your specific folder on your drive
             
         Return:
             json : proivde id of uploaded file and name of file
         """
         service = self.get_service()
-        if encrypt:
-            status, file_name = self.cryption.encrypt_file(file=file,
-                                       fingerprint='aali@gmail.com')
-            file = file_name if status else ...
-            
+        
         media_body = MediaFileUpload(filename=file,
                                     mimetype='application/octet-stream')
         body = {
-            'name': file,
-            'parents': [folder_id] if folder_id else None
+            'name': os.path.basename(file),
+            'parents': [FOLDER_ID]
         }
         
         response = service.files().create(body=body, 
@@ -244,10 +256,10 @@ class GCDrive:
         """
         service = self.get_service()
         request = service.files().get_media(fileId=file_id)
-        with open(f'{BACKUP_FOLDER}{file_id}', 'wb') as f:
+        file = os.path.join(BACKUP_FOLDER, file_id)
+        with open(file, 'wb') as f:
             downloader = MediaIoBaseDownload(f, request)
             done = False
             while done is False:
                 status, done = downloader.next_chunk()
-            return done, f"{BACKUP_FOLDER}{file_id}"
-        
+            return done, file

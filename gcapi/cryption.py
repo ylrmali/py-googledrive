@@ -9,7 +9,8 @@ import random
 from dotenv import load_dotenv
 load_dotenv()
 
-BACKUP_FOLDER = os.environ.get('BACKUP_FOLDER')
+BACKUP_FOLDER = os.environ.get('GCAPI_BACKUP_FOLDER')
+GPG_RECIPIENT = os.environ.get('GCAPI_GPG_RECIPIENT')
 
 class Cryption:
     def __init__(self):
@@ -18,7 +19,7 @@ class Cryption:
 
     def get_gnupg_home(self):
         # Get GNUPG_HOME from environment variable or use default value
-        return os.environ.get('GNUPG_HOME')
+        return os.environ.get('GCAPI_GNUPG_HOME')
 
     def generate_rsa_key(self, 
                      name_real: str, 
@@ -171,7 +172,7 @@ class Cryption:
             status = True if result == 'ok' else False
         return status
     
-    def encrypt_file(self, file: str, fingerprint: str=None):
+    def encrypt_file(self, file: str):
         """Encrypt file with GPG key
         
         If there is a only one GPG key you do not have to set recipients,
@@ -187,27 +188,33 @@ class Cryption:
         Return:
             status: bool -> True/False
         """
-        fp_list = fingerprint.split(",")  # split recipients
-        
         with open(file, 'rb') as f:
             file_name = f"{os.path.basename(f.name)}.gpg"
+            output = os.path.join(BACKUP_FOLDER, file_name)
             status = self.gpg.encrypt_file(
                 fileobj_or_path=f,
-                recipients=fp_list,
-                output=file_name
+                recipients=GPG_RECIPIENT,
+                output=output
             )
-            return status.ok, file_name
+            return status.ok, output
         
     def decrypt_file(self, file: str):
         """Decrypt file with GPG key"""
 
         with open(file, 'rb') as f:
+            # remove .gpg extention of file
             file_name = self.__remove_gpg_extention(
                 file_name=os.path.basename(f.name)
             )
-            status = self.gpg.decrypt_file(f, output=file_name)
             
-        return status.ok, f"{BACKUP_FOLDER}{file_name}"
+            # define output path and decrypt file
+            output = os.path.join(BACKUP_FOLDER, file_name)
+            status = self.gpg.decrypt_file(
+                f, 
+                output=output
+            )
+            
+        return status.ok, output
     
     def __remove_gpg_extention(self, file_name: str) -> str:
         """Remove .gpg extension from file name"""

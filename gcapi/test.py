@@ -1,5 +1,5 @@
 import unittest
-from pydrive.drive import GCDrive
+from gcapi.drive import GCDrive
 
 class TestGoogleDriveAPI(unittest.TestCase):
     
