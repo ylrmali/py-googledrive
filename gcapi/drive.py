@@ -172,6 +172,43 @@ class GCDrive:
         if backup_files:
             latest_backup = max(backup_files, key=lambda x: x['createdTime'])
             return latest_backup
+        
+    def list_media_files(self) -> list:
+        """List backup files of database
+        
+        List database's backups according to database name
+        
+        Params:
+            db_name: str -> Database name
+        
+        Return:
+            file list -> list
+        """
+        service = self.get_service()
+        query = f"name contains 'media.'"
+        
+        response = service.files()\
+                                .list(q=query, 
+                                    fields="files(id, name, createdTime)")\
+                                .execute()
+        return response.get('files', [])
+    
+    def get_latest_media(self) -> dict:
+        """
+        Get specific database latest backup file
+        
+        Params:
+            db_name: str -> Database name 
+            
+        Return:
+            file -> None | dictionary
+        """
+        media_files = self.list_media_files()
+        print(media_files)
+        if media_files:
+            latest_media = max(media_files, key=lambda x: x['createdTime'])
+            return latest_media    
+    
     
     def upload(self, 
                file: str,
@@ -189,6 +226,7 @@ class GCDrive:
         service = self.get_service()
         
         media_body = MediaFileUpload(filename=file,
+                                    resumable=True,
                                     mimetype='application/octet-stream')
         body = {
             'name': os.path.basename(file),
