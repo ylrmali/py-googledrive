@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandParser
 from django.conf import settings
 from gcapi.drive import GCDrive
 from gcapi.cryption import Cryption
-from gcapi.compress import extract_folder
+from gcapi.compress import extract_folder, compress_folder
 import os 
 
 class Command(BaseCommand):
