@@ -28,13 +28,7 @@ class Command(BaseCommand):
         """
         return self.stdout.write(self.style.ERROR(str(text)))
     
-    def __create_uri(self, 
-                     user: str, 
-                     password: str, 
-                     host: str, 
-                     port: int|str, 
-                     name: str
-        ) -> str:
+    def __create_uri(self) -> str:
         """
         Create postgresql connection url with user settings
         
@@ -51,14 +45,15 @@ class Command(BaseCommand):
         Example: 
             postgresql://postgresql:password@localhost:5432/dbname
         """
-        uri = 'postgresql://'
-        if user and password:
-            uri += f'{user}:{password}@'
-        if host and port:
-            uri += f'{host}:{port}'
-        if name:
-            uri += f'/{name}'
-        return uri
+        from django.db import DEFAULT_DB_ALIAS, connections
+        default =  DEFAULT_DB_ALIAS
+        default_conn = connections[default]
+        
+        db_config = default_conn.settings_dict
+
+
+        database_url = f"postgres://{db_config['USER']}:{db_config['PASSWORD']}@{db_config['HOST']}:{db_config['PORT']}/{db_config['NAME']}"
+        return database_url
         
         
     
@@ -84,14 +79,7 @@ class Command(BaseCommand):
 
         try:
             # Call pg_dump command to perform the backup
-            pg_url = self.__create_uri(
-                user=db_user,
-                password=db_pass,
-                host=db_host,
-                port=db_port,
-                name=db_name
-            )
-            cmd = f"pg_dump {pg_url} -Fc -f {backup_filepath}"
+            cmd = f"pg_dump {self.__create_uri()} -Fc -f {backup_filepath}"
             subprocess.run(cmd, shell=True, check=True)
             
             if is_encrypt:
