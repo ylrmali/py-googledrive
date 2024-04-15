@@ -66,8 +66,8 @@ class Command(BaseCommand):
         db = settings.DATABASES['default']
         db_name = db.get('NAME')
         db_user = db.get('USER')
-        db_host = db.get('HOST')
-        db_port = db.get('PORT')
+        db_host = db.get('HOST') or os.environ.get('HOST')
+        db_port = db.get('PORT') or os.environ.get('PORT')
         db_pass = db.get('PASSWORD')
         
         output_dir = settings.BASE_DIR
