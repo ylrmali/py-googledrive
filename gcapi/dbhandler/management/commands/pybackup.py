@@ -28,11 +28,47 @@ class Command(BaseCommand):
         """
         return self.stdout.write(self.style.ERROR(str(text)))
     
+    def __create_uri(self, 
+                     user: str, 
+                     password: str, 
+                     host: str, 
+                     port: int|str, 
+                     name: str
+        ) -> str:
+        """
+        Create postgresql connection url with user settings
+        
+        Params:
+            username: str -> database user 
+            password: str -> database user's password 
+            host: str -> database host 
+            port: int|str -> database port
+            name: str -> database name
+            
+        Return:
+            postgreqsl connection url
+            
+        Example: 
+            postgresql://postgresql:password@localhost:5432/dbname
+        """
+        uri = 'postgresql://'
+        if user and password:
+            uri += f'{uri}{user}:{password}@'
+        if host and port:
+            uri += f'{host}:{port}'
+        if name:
+            uri += f'/{name}'
+        return uri
+        
+        
     
     def handle(self, *args, **options):
         db = settings.DATABASES['default']
         db_name = db.get('NAME')
         db_user = db.get('USER')
+        db_host = db.get('HOST')
+        db_port = db.get('PORT')
+        db_pass = db.get('PASSWORD')
         
         output_dir = settings.BASE_DIR
         is_encrypt = options['encrypt']
@@ -48,7 +84,14 @@ class Command(BaseCommand):
 
         try:
             # Call pg_dump command to perform the backup
-            cmd = f"pg_dump -U {db_user} -d {db_name} -Fc -f {backup_filepath}"
+            pg_url = self.__create_uri(
+                user=db_user,
+                password=db_pass,
+                host=db_host,
+                port=db_port,
+                name=db_name
+            )
+            cmd = f"pg_dump {pg_url} -Fc -f {backup_filepath}"
             subprocess.run(cmd, shell=True, check=True)
             
             if is_encrypt:
