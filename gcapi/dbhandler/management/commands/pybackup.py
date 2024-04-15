@@ -53,7 +53,7 @@ class Command(BaseCommand):
         """
         uri = 'postgresql://'
         if user and password:
-            uri += f'{uri}{user}:{password}@'
+            uri += f'{user}:{password}@'
         if host and port:
             uri += f'{host}:{port}'
         if name:
