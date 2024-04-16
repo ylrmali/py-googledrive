@@ -60,10 +60,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         db = settings.DATABASES['default']
         db_name = db.get('NAME')
-        db_user = db.get('USER')
-        db_host = db.get('HOST') or os.environ.get('HOST')
-        db_port = db.get('PORT') or os.environ.get('PORT')
-        db_pass = db.get('PASSWORD')
         
         output_dir = settings.BASE_DIR
         is_encrypt = options['encrypt']
@@ -85,6 +81,7 @@ class Command(BaseCommand):
             if is_encrypt:
                 status, encrypted_file = Cryption().encrypt_file(file=f"{backup_filepath}")
                 if not status:
+                    os.remove(backup_filepath)
                     self.__error_output("<------ Dump file could not be encrypted ------>")
                 
                 os.remove(backup_filepath) # remove old file

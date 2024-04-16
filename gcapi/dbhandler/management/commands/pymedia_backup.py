@@ -69,7 +69,7 @@ class Command(BaseCommand):
             if response:
                 for file in temp_files:
                     os.remove(file)  # remove files
-                self.__success_output("Success: Database data's successfully loaded from backup file")
+                self.__success_output(f"Success: Database data's successfully loaded from backup file, Message: {response}")
 
         except Exception as e:
             self.__error_output(f"Restore failed: {e}")
