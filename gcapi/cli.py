@@ -15,6 +15,14 @@ def main():
 
 
 @main.command()
+@click.option('-f', '--file', type=str, help='GPG Key file or file path')
+def import_key(file):
+    if file:
+        status = __cryption.import_keys(file)
+        msg = "Key imported successfuly" if status else "Key can not imported"
+        click.echo(message=msg)
+
+@main.command()
 @click.option("-e", "--encrypt", is_flag=True , help="Encrypt file with GPG")
 @click.option("-f", "--file", type=str, help="Specific file path")
 def upload(encrypt, file=None):
