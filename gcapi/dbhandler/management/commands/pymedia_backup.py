@@ -33,6 +33,12 @@ class Command(BaseCommand):
         """
         return self.stdout.write(self.style.ERROR(str(text)))
     
+    def __remove_temp(self, temp_list: list):
+        """
+        Remove temprary used files
+        """
+        for file in temp_list:
+            os.remove(file)
     
     def handle(self, *args, **options):
         _drive = GCDrive() 
@@ -45,11 +51,13 @@ class Command(BaseCommand):
         
         if is_compress:
             # compress media folder
-            compress_folder(
+            c_status, c_file = compress_folder(
                 folder_path=media_root,
                 zip_filename='media'
             )
-            temp_files.append(f"{media_root}.zip")
+            if not c_status:
+                self.__error_output("Fail: Compress error!")
+            temp_files.append(c_file)  # append zipped file to temp_file list
             media_root = f"{media_root}.zip"
         
         if is_encrypt:
@@ -58,7 +66,6 @@ class Command(BaseCommand):
 
             if not status:
                 self.__error_output("Fail: Encryption error!. Check credentials.json !")
-                return
             temp_files.append(encrypted_file)
             media_root = encrypted_file
             
@@ -67,9 +74,10 @@ class Command(BaseCommand):
         try:
             response = _drive.upload(file=media_root)
             if response:
-                for file in temp_files:
-                    os.remove(file)  # remove files
+                # remove temp files
+                self.__remove_temp(temp_files)
                 self.__success_output(f"Success: Database data's successfully loaded from backup file, Message: {response}")
+            self.__remove_temp(temp_files)
 
         except Exception as e:
             self.__error_output(f"Restore failed: {e}")

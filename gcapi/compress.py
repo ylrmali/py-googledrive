@@ -44,9 +44,19 @@ def uncompress_file(filepath: str) -> str:
 
 
 def compress_folder(folder_path, zip_filename):
-    shutil.make_archive(zip_filename, 'zip', folder_path)
-    return True
+    try:
+        zip_filepath = shutil.make_archive(zip_filename, 'zip', folder_path)
+        return True, zip_filepath
+    except Exception as e:
+        error_message = f"Error compressing folder '{folder_path}': {e}"
+        print(error_message)
+        return False, None
 
 def extract_folder(zip_filename, extract_path):
-    shutil.unpack_archive(zip_filename, extract_path)
-    return True
+    try:
+        shutil.unpack_archive(zip_filename, extract_path)
+        return True, f"Zip file '{zip_filename}' extracted successfully to '{extract_path}'."
+    except Exception as e:
+        error_message = f"Error extracting zip file '{zip_filename}': {e}"
+        print(error_message)
+        return False, None
