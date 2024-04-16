@@ -58,7 +58,7 @@ class Command(BaseCommand):
             if not c_status:
                 self.__error_output("Fail: Compress error!")
             temp_files.append(c_file)  # append zipped file to temp_file list
-            media_root = f"{media_root}.zip"
+            media_root = c_file  # change media root as zipped file
         
         if is_encrypt:
             # encrypt media.zip folder
@@ -80,4 +80,4 @@ class Command(BaseCommand):
             self.__remove_temp(temp_files)
 
         except Exception as e:
-            self.__error_output(f"Restore failed: {e}")
+            self.__error_output(f"Media backup failed: {e}")
