@@ -127,20 +127,21 @@ class Cryption:
         elif isinstance(key_id, str):
             self.__export(key_id)
 
-    def import_keys(self, 
-                    key_path: str
-        ) -> bool|None:
+    def import_keys(self, key_path: str):
         """Import GPG key from file
         
         Params:
-            key:  str  -> GPG exported file path
-        
+            key_path: str -> GPG exported file path
+            
         Return:
-            status: True or None
+            bool: True if import successful, False otherwise
         """
-        key_data = open(key_path).read()
+        with open(key_path, 'rb') as key_file:
+            key_data = key_file.read()
+            
         import_result = self.gpg.import_keys(key_data)
-        return True
+        return import_result
+
 
     def delete_key(self, 
                    key

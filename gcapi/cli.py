@@ -19,8 +19,7 @@ def main():
 def import_key(file):
     if file:
         status = __cryption.import_keys(file)
-        msg = "Key imported successfuly" if status else "Key can not imported"
-        click.echo(message=msg)
+        click.echo(message=status)
 
 @main.command()
 @click.option("-e", "--encrypt", is_flag=True , help="Encrypt file with GPG")
