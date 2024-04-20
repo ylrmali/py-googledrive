@@ -74,8 +74,6 @@ class Command(BaseCommand):
         try:
             response = _drive.upload(file=media_root)
             if response:
-                # remove temp files
-                self.__remove_temp(temp_files)
                 self.__success_output(f"Success: Database data's successfully loaded from backup file, Message: {response}")
             self.__remove_temp(temp_files)
 
