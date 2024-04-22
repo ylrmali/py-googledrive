@@ -53,7 +53,7 @@ class Command(BaseCommand):
             # compress media folder
             c_status, c_file = compress_folder(
                 folder_path=media_root,
-                zip_filename='media'
+                tar_path='media.tar'
             )
             if not c_status:
                 self.__error_output("Fail: Compress error!")
