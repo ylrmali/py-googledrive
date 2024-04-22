@@ -1,5 +1,7 @@
 import gzip
 import shutil
+import tarfile
+import os
 
 def compress_file(filepath: str) -> str:
     """
@@ -43,20 +45,30 @@ def uncompress_file(filepath: str) -> str:
     return extracted_file
 
 
-def compress_folder(folder_path, zip_filename):
-    try:
-        zip_filepath = shutil.make_archive(zip_filename, 'zip', folder_path)
-        return True, zip_filepath
-    except Exception as e:
-        error_message = f"Error compressing folder '{folder_path}': {e}"
-        print(error_message)
-        return False, None
+def compress_folder(folder_path, tar_path):
+    """
+    Compresses a folder into a tar archive.
+    
+    Args:
+        folder_path (str): Path to the folder to compress.
+        tar_path (str): Path to save the compressed tar archive.
+        
+    Returns:
+        str: Path to the compressed tar archive.
+    """
+    with tarfile.open(tar_path, 'w') as tar:
+        tar.add(folder_path, arcname=os.path.basename(folder_path))
+    return tar_path
 
-def extract_folder(zip_filename, extract_path):
-    try:
-        shutil.unpack_archive(zip_filename, extract_path)
-        return True, f"Zip file '{zip_filename}' extracted successfully to '{extract_path}'."
-    except Exception as e:
-        error_message = f"Error extracting zip file '{zip_filename}': {e}"
-        print(error_message)
-        return False, None
+def uncompress_folder(tar_path, extract_dir):
+    """
+    Uncompresses a tar archive into a directory.
+    
+    Args:
+        tar_path (str): Path to the tar archive to uncompress.
+        extract_dir (str): Directory to extract the contents into.
+    """
+    with tarfile.open(tar_path, 'r') as tar:
+        tar.extractall(path=extract_dir)
+    return extract_dir
+
