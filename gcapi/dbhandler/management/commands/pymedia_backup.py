@@ -74,7 +74,7 @@ class Command(BaseCommand):
         try:
             response = _drive.upload(file=media_root)
             if response:
-                self.__success_output(f"Success: Database data's successfully loaded from backup file, Message: {response}")
+                self.__success_output(f"Success: Media backup successfully upload to Google Drive\n Message: {response}")
             self.__remove_temp(temp_files)
 
         except Exception as e:

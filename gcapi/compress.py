@@ -56,9 +56,12 @@ def compress_folder(folder_path, tar_path):
     Returns:
         str: Path to the compressed tar archive.
     """
-    with tarfile.open(tar_path, 'w') as tar:
-        tar.add(folder_path, arcname=os.path.basename(folder_path))
-    return tar_path
+    try:
+        with tarfile.open(tar_path, 'w') as tar:
+            tar.add(folder_path, arcname=os.path.basename(folder_path))
+        return True, tar_path
+    except Exception as e:
+        return False, str(e)
 
 def uncompress_folder(tar_path, extract_dir):
     """
@@ -68,7 +71,10 @@ def uncompress_folder(tar_path, extract_dir):
         tar_path (str): Path to the tar archive to uncompress.
         extract_dir (str): Directory to extract the contents into.
     """
-    with tarfile.open(tar_path, 'r') as tar:
-        tar.extractall(path=extract_dir)
-    return extract_dir
+    try:
+        with tarfile.open(tar_path, 'r') as tar:
+            tar.extractall(path=extract_dir)
+        return True, extract_dir
+    except Exception as e:
+        return False, str(e)
 
