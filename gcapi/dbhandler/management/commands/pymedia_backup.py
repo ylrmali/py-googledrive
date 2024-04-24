@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand, CommandParser
-from django.utils.functional import async_to_sync
 from django.conf import settings
 from gcapi.cryption import Cryption
 from gcapi.drive import GCDrive
