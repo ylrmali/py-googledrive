@@ -2,6 +2,7 @@ import gzip
 import shutil
 import tarfile
 import os
+import asyncio
 
 def compress_file(filepath: str) -> str:
     """
@@ -45,20 +46,21 @@ def uncompress_file(filepath: str) -> str:
     return extracted_file
 
 
-def compress_folder(folder_path, tar_path):
+async def compress_folder(folder_path, tar_path):
     """
-    Compresses a folder into a tar archive.
+    Compresses a folder into a tar archive asynchronously.
     
     Args:
         folder_path (str): Path to the folder to compress.
         tar_path (str): Path to save the compressed tar archive.
         
     Returns:
-        str: Path to the compressed tar archive.
+        tuple: A tuple containing a boolean indicating success or failure and the path to the compressed tar archive.
     """
     try:
+        loop = asyncio.get_event_loop()
         with tarfile.open(tar_path, 'w') as tar:
-            tar.add(folder_path, arcname=os.path.basename(folder_path))
+            await loop.run_in_executor(None, tar.add, folder_path, os.path.basename(folder_path))
         return True, tar_path
     except Exception as e:
         return False, str(e)

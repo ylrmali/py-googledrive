@@ -1,8 +1,10 @@
 from django.core.management.base import BaseCommand, CommandParser
+from django.utils.functional import async_to_sync
 from django.conf import settings
 from gcapi.cryption import Cryption
 from gcapi.drive import GCDrive
 from gcapi.compress import compress_folder
+import asyncio
 import os 
 
 class Command(BaseCommand):
@@ -39,8 +41,15 @@ class Command(BaseCommand):
         """
         for file in temp_list:
             os.remove(file)
+            
+    async def finish_compress_tasks(self, temp_files):
+        """
+        Wait for the completion of all compress tasks.
+        """
+        # Add any necessary cleanup or checks here
+        await asyncio.gather(*temp_files)
     
-    def handle(self, *args, **options):
+    async def handle(self, *args, **options):
         _drive = GCDrive() 
         _cryption = Cryption()
         media_root = settings.MEDIA_ROOT
@@ -51,14 +60,16 @@ class Command(BaseCommand):
         
         if is_compress:
             # compress media folder
-            c_status, c_file = compress_folder(
-                folder_path=media_root,
+            c_status, c_file = await compress_folder(
+                folder_path=media_root, 
                 tar_path='media.tar'
             )
             if not c_status:
                 self.__error_output("Fail: Compress error!")
             temp_files.append(c_file)  # append zipped file to temp_file list
             media_root = c_file  # change media root as zipped file
+        
+        await self.finish_compress_tasks(temp_files)
         
         if is_encrypt:
             # encrypt media.zip folder
