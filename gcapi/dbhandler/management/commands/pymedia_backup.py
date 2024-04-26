@@ -43,7 +43,7 @@ class Command(BaseCommand):
             os.remove(file)
             
     
-    def _create_media_tar(media_folder: str):
+    def _create_media_tar(self, media_folder: str):
         # Create a timestamp for the media folder
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")
         tarname = f'media_{timestamp}.tar.gz'
