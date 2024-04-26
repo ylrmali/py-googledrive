@@ -50,20 +50,11 @@ class Command(BaseCommand):
         temp_files = []
         
         
-        if is_compress:
-            # compress media folder
-            c_status, c_file = compress_folder(
-                folder_path=media_root, 
-                tar_path='media.tar'
-            )
-            if not c_status:
-                self.__error_output("Fail: Compress error!")
-            temp_files.append(c_file)  # append zipped file to temp_file list
-            media_root = c_file  # change media root as zipped file
-        
         if is_encrypt:
             # encrypt media.zip folder
-            status, encrypted_file = _cryption.encrypt_file(file=media_root)
+            status, encrypted_file = _cryption.encrypt_file(
+                file=media_root,
+                compress=is_compress)
 
             if not status:
                 self.__error_output("Fail: Encryption error!. Check credentials.json !")

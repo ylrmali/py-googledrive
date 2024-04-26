@@ -7,7 +7,7 @@ BACKUP_FOLDER = os.environ.get('GCAPI_BACKUP_FOLDER')
 GPG_RECIPIENT = os.environ.get('GCAPI_GPG_RECIPIENT')
 
 class Cryption:
-    def encrypt_file(self, file: str):
+    def encrypt_file(self, file: str, compress: bool=False):
         """Encrypt file with GPG key
         
         If there is only one GPG key, you do not have to set recipients.
@@ -27,18 +27,27 @@ class Cryption:
         output = os.path.join(BACKUP_FOLDER, f"{file_name}.gpg")
         
         # Construct the GPG command
-        gpg_command = [
-            "gpg",
+        gpg_cmd = ["gpg"]
+        
+        # GPG options
+        options = [
             "--encrypt",
             "--output", output,
             "--always-trust",
-            "--recipient", GPG_RECIPIENT,
-            file
+            "--recipient", GPG_RECIPIENT
         ]
+        if compress:
+            options.append("--compress-algo=gzip")
+        
+        # add options to base gpg command
+        gpg_cmd.extend(options)
+        
+        # add file
+        gpg_cmd.append(file)
         
         # Run the GPG command using subprocess
         try:
-            subprocess.run(gpg_command, check=True)
+            subprocess.run(gpg_cmd, check=True)
             return True, output
         except subprocess.CalledProcessError as e:
             print(f"Error encrypting file: {e}")
