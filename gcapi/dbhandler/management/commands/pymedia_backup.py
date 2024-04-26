@@ -1,5 +1,5 @@
 import asyncio
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandParser
 from django.conf import settings
 from gcapi.cryption import Cryption
 from gcapi.drive import GCDrive
@@ -11,6 +11,37 @@ import datetime
 class Command(BaseCommand):
     help = "Restore database"
 
+    def add_arguments(self, parser: CommandParser):
+        parser.add_argument(
+            '--encrypt',
+            action='store_true',
+            help='Encrypt media folder'
+        )
+        parser.add_argument(
+            '--compress',
+            action='store_true',
+            help="Compress media folder"
+        )   
+        
+    def __success_output(self, text):
+        """
+        Success output
+        """
+        return self.stdout.write(self.style.SUCCESS(str(text)))
+    
+    def __error_output(self, text):
+        """
+        Success output
+        """
+        return self.stdout.write(self.style.ERROR(str(text)))
+    
+    def __remove_temp(self, temp_list: list):
+        """
+        Remove temprary used files
+        """
+        for file in temp_list:
+            os.remove(file)
+            
     async def _create_media_tar_async(self, media_folder: str):
         """
         Asynchronously create the tar file for the media folder.
