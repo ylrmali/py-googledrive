@@ -37,7 +37,7 @@ class Cryption:
             "--recipient", GPG_RECIPIENT
         ]
         if compress:
-            options.append("--compress-algo=gzip")
+            options.append("--compress-algo=zip")
         
         # add options to base gpg command
         gpg_cmd.extend(options)
