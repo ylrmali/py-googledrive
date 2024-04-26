@@ -3,7 +3,6 @@ from django.conf import settings
 from gcapi.cryption import Cryption
 from gcapi.drive import GCDrive
 from gcapi.compress import compress_folder
-import asyncio
 import os 
 
 class Command(BaseCommand):
