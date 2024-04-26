@@ -7,7 +7,7 @@ BACKUP_FOLDER = os.environ.get('GCAPI_BACKUP_FOLDER')
 GPG_RECIPIENT = os.environ.get('GCAPI_GPG_RECIPIENT')
 
 class Cryption:
-    def encrypt_file(self, file: str, compress: bool=False):
+    def encrypt_file(self, file: str):
         """Encrypt file with GPG key
         
         If there is only one GPG key, you do not have to set recipients.
@@ -36,8 +36,6 @@ class Cryption:
             "--always-trust",
             "--recipient", GPG_RECIPIENT
         ]
-        if compress:
-            options.append("--compress-algo=zip")
         
         # add options to base gpg command
         gpg_cmd.extend(options)
