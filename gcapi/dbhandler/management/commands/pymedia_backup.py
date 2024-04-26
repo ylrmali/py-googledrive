@@ -69,7 +69,7 @@ class Command(BaseCommand):
         is_compress = options['compress']
         temp_files = []
         
-        c_status, c_output =  self._create_media_tar(media_root=media_root)
+        c_status, c_output =  self._create_media_tar(media_folder=media_root)
         if c_status:
             temp_files.append(c_output)
             media_root = c_output
