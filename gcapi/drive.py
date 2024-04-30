@@ -117,7 +117,7 @@ class GCDrive:
             return None
 
     
-    def list(self) -> list[dict]:
+    def list(self, folder_id: str=None) -> list[dict]:
         """
         List all item on Google Drive service
         
@@ -126,11 +126,12 @@ class GCDrive:
             File: id, name ,createdTime, mimeType, fullFileExtension
         """
         service = self.get_service()  # get drive service
-        results = service.files()\
-            .list(pageSize=PAGE_LIST_SIZE, 
-                fields="nextPageToken, \
-                files(id, name, createdTime, mimeType, fullFileExtension, trashed)")\
-            .execute()
+        results = service.files().list(
+            q=f"'{folder_id or FOLDER_ID}' in parents" if folder_id or FOLDER_ID else "",
+            pageSize=PAGE_LIST_SIZE, 
+            fields="nextPageToken, \
+            files(id, name, createdTime, mimeType, fullFileExtension, trashed)")\
+        .execute()
         items = results.get("files", [])
         return items
     
@@ -303,3 +304,14 @@ class GCDrive:
             while done is False:
                 status, done = downloader.next_chunk()
             return done, file
+
+    
+if __name__ == "__main__":
+    drive = GCDrive()
+    data = drive.list()
+    print(FOLDER_ID)
+    import pprint
+    pprint.pprint(data)
+    # for d in data:
+    #     drive.delete(d.get('id'))
+    #     print(f"{d.get('id')} deleted")
