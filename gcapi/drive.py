@@ -1,6 +1,6 @@
 """
 Author: 
-    Ali Yıldırım <ali.yildirim@tarsierteknoloji.com>
+    Ali Yıldırım <ylrmali1289@gmail.com>
 
 Backup handler with using Google Drive Api
 
@@ -205,7 +205,6 @@ class GCDrive:
             file -> None | dictionary
         """
         media_files = self.list_media_files()
-        print(media_files)
         if media_files:
             latest_media = max(media_files, key=lambda x: x['createdTime'])
             return latest_media    
@@ -305,13 +304,4 @@ class GCDrive:
                 status, done = downloader.next_chunk()
             return done, file
 
-    
-if __name__ == "__main__":
-    drive = GCDrive()
-    data = drive.list()
-    print(FOLDER_ID)
-    import pprint
-    pprint.pprint(data)
-    # for d in data:
-    #     drive.delete(d.get('id'))
-    #     print(f"{d.get('id')} deleted")
+

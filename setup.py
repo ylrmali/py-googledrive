@@ -32,7 +32,7 @@ setup(
     version=read_version(),
     description='Google drive api wrapper for python, and Django easy backup/restore library',
     author='Ali Yıldırım',
-    author_email='ali.yildirim@tarsierteknoloj.com',
+    author_email='ylrmali1289@gmail.com',
     packages=find_packages(),
     license='MIT',
     install_requires=read_requirements(),
